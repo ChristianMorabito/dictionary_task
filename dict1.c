@@ -70,3 +70,4 @@ int main(){
     insert(&head, buffer);
 
 }
+// TEST
