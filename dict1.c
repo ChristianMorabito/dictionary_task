@@ -3,7 +3,6 @@
 #include <string.h>
 #define MAX_FIELD 128
 #define MAX_RECORD 512
-#define FIELD_N 19
 
 typedef struct{
     int fPathId;
@@ -48,6 +47,68 @@ double createDouble(char* tmpField){
     converted = strtod(tmpField, NULL);
     return converted;
 }
+void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int right, int left){
+    switch (comma){
+        case 1:
+            structRec->fPathId = createInt(tmpField);
+            break;
+        case 2:
+            structRec->address = createString(right, left, tmpField);
+            break;
+        case 3:
+            structRec->clueSa = createString(right, left, tmpField);
+            break;
+        case 4:
+            structRec->assetType = createString(right, left, tmpField);
+            break;
+        case 5:
+            structRec->deltaZ = createDouble(tmpField);
+            break;
+        case 6:
+            structRec->distance = createDouble(tmpField);
+            break;
+        case 7:
+            structRec->grade1in = createDouble(tmpField);
+            break;
+        case 8:
+            structRec->mccId = createInt(tmpField);
+            break;
+        case 9:
+            structRec->mccIdInt = createInt(tmpField);
+            break;
+        case 10:
+            structRec->rLMax = createDouble(tmpField);
+            break;
+        case 11:
+            structRec->rLMin = createDouble(tmpField);
+            break;
+        case 12:
+            structRec->segSide = createString(right, left, tmpField);
+            break;
+        case 13:
+            structRec->statusId = createInt(tmpField);
+            break;
+        case 14:
+            structRec->streetId = createInt(tmpField);
+            break;
+        case 15:
+            structRec->streetGroup = createInt(tmpField);
+            break;
+        case 16:
+            structRec->startLat = createDouble(tmpField);
+            break;
+        case 17:
+            structRec->startLon = createDouble(tmpField);
+            break;
+        case 18:
+            structRec->endLat = createDouble(tmpField);
+            break;
+        default:
+            printf("Error!!");
+    }
+
+
+}
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
     int right, left=0;
@@ -56,65 +117,7 @@ Record* importRec(char* stringRec){
     memset(tmpField, '\0', MAX_FIELD);
     for (right=0; *stringRec != '\0'; right++, stringRec++){
         if (*stringRec == ','){
-
-            switch (comma){
-                case 1:
-                    structRec->fPathId = createInt(tmpField);
-                    break;
-                case 2:
-                    structRec->address = createString(right, left, tmpField);
-                    break;
-                case 3:
-                    structRec->clueSa = createString(right, left, tmpField);
-                    break;
-                case 4:
-                    structRec->assetType = createString(right, left, tmpField);
-                    break;
-                case 5:
-                    structRec->deltaZ = createDouble(tmpField);
-                    break;
-                case 6:
-                    structRec->distance = createDouble(tmpField);
-                    break;
-                case 7:
-                    structRec->grade1in = createDouble(tmpField);
-                    break;
-                case 8:
-                    structRec->mccId = createInt(tmpField);
-                    break;
-                case 9:
-                    structRec->mccIdInt = createInt(tmpField);
-                    break;
-                case 10:
-                    structRec->rLMax = createDouble(tmpField);
-                    break;
-                case 11:
-                    structRec->rLMin = createDouble(tmpField);
-                    break;
-                case 12:
-                    structRec->segSide = createString(right, left, tmpField);
-                    break;
-                case 13:
-                    structRec->statusId = createInt(tmpField);
-                    break;
-                case 14:
-                    structRec->streetId = createInt(tmpField);
-                    break;
-                case 15:
-                    structRec->streetGroup = createInt(tmpField);
-                    break;
-                case 16:
-                    structRec->startLat = createDouble(tmpField);
-                    break;
-                case 17:
-                    structRec->startLon = createDouble(tmpField);
-                    break;
-                case 18:
-                    structRec->endLat = createDouble(tmpField);
-                    break;
-                default:
-                    printf("Error!!");
-            }
+            fillStructDescriptors(structRec, comma, tmpField, right, left);
             memset(tmpField, '\0', (right-left)-1);
             left = right;
             i = 0; // reset tmpField iterator
@@ -139,19 +142,33 @@ void insert(Node** head, char* strRec){
         *head = newNode;
         return;
     }
-    // linked list pointer
     Node* curr = *head;
+    while (curr->next){
+        curr = curr->next;
+    }
+    curr->next = newNode;
 }
 
 int main(){
+    // Head for Linked List
     Node* head = NULL;
-    FILE* fPtr = fopen("dataset_1.csv", "r");
-//    fscanf(fPtr, "%*[^\n]\n");
-    char buffer[MAX_RECORD];
-    memset(buffer, '\0', MAX_RECORD);
-    fgets(buffer,MAX_RECORD,fPtr);
-    printf("%s", buffer);
-//    insert(&head, buffer);
-//    printf("Done!");
 
+    // Create file pointer & open file
+    FILE* fPtr;
+    fPtr = fopen("dataset_20.csv", "r");
+    // Bypass first line (row headings)
+    fscanf(fPtr, "%*[^\n]\n");
+    // create buffer to hold each record that is iterated through
+    char buffer[MAX_RECORD];
+    // initalise buffer array
+    memset(buffer, '\0', MAX_RECORD);
+    // while loop allows for the csv records/rows to be iterated through, until the end
+    while(fgets(buffer,MAX_RECORD,fPtr) != NULL){
+        // create a node, fill it with record data & link it to linked list
+        insert(&head, buffer);
+    }
+
+    fclose(fPtr);
+
+    return 0;
 }

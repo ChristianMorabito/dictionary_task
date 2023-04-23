@@ -7,5 +7,4 @@ CMakeLists.txt
 Folder.png
 Notes.txt
 cmake-build-debug/
-dataset_2.csv
-dataset_20.csv
+cmake-build-debug/dataset_2.csv
