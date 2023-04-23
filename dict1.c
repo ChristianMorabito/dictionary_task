@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #define MAX_FIELD 128
 #define MAX_RECORD 512
 
@@ -24,7 +25,6 @@ typedef struct{
     double startLon;
     double endLat;
     double endLon;
-
 }Record;
 typedef struct Node{
     Record* data;
@@ -35,18 +35,20 @@ int createInt(char* tmpField){
     int converted;
     converted = strtol(tmpField, NULL, 10);
     return converted;
-
 }
+
 char* createString(int right, int left, char* tmpField){
     char* string = calloc(strlen(tmpField), sizeof(char));
     strncpy(string, tmpField, (right - left));
     return string;
 }
+
 double createDouble(char* tmpField){
     double converted;
     converted = strtod(tmpField, NULL);
     return converted;
 }
+
 void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int right, int left){
     switch (comma){
         case 1:
@@ -106,18 +108,30 @@ void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int rig
         default:
             printf("Error!!");
     }
-
-
 }
+
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
     int right, left=0;
     int i=0, comma=1;
+    bool quote = false;
     char tmpField[MAX_FIELD];
     memset(tmpField, '\0', MAX_FIELD);
     for (right=0; *stringRec != '\0'; right++, stringRec++){
-        if (*stringRec == ','){
+
+        if (*stringRec == '"'){
+            if (quote){
+                quote = false;
+            }
+            else{
+                quote = true;
+            }
+        }
+
+        if (!quote && *stringRec == ','){
+
             fillStructDescriptors(structRec, comma, tmpField, right, left);
+
             memset(tmpField, '\0', (right-left)-1);
             left = right;
             i = 0; // reset tmpField iterator
@@ -130,6 +144,7 @@ Record* importRec(char* stringRec){
     structRec->endLon = createDouble(tmpField);
     return structRec;
 }
+
 void insert(Node** head, char* strRec){
     // create struct Record
     Record* structRec = importRec(strRec);
@@ -147,6 +162,34 @@ void insert(Node** head, char* strRec){
         curr = curr->next;
     }
     curr->next = newNode;
+}
+
+void printList(Node* curr){
+    int i = 1;
+    while (curr){
+        printf("\n__________________NODE %d__________________\n", i);
+        printf("fPathID: %d\n",curr->data->fPathId);
+        printf("Address: %s\n",curr->data->address);
+        printf("ClueSa: %s\n",curr->data->clueSa);
+        printf("AssetType: %s\n",curr->data->assetType);
+        printf("DeltaZ: %f\n",curr->data->deltaZ);
+        printf("Distance: %f\n",curr->data->distance);
+        printf("Grade1in: %f\n",curr->data->grade1in);
+        printf("MccID: %d\n",curr->data->mccId);
+        printf("MccIDint: %d\n",curr->data->mccIdInt);
+        printf("R_Lmax: %f\n",curr->data->rLMax);
+        printf("R_Lmin: %f\n",curr->data->rLMin);
+        printf("SegSide: %s\n",curr->data->segSide);
+        printf("StatusID: %d\n",curr->data->statusId);
+        printf("StreetID: %d\n",curr->data->streetId);
+        printf("StreetGroup: %d\n",curr->data->streetGroup);
+        printf("StartLat: %f\n",curr->data->startLat);
+        printf("StartLon: %f\n",curr->data->startLon);
+        printf("EndLat: %f\n",curr->data->endLat);
+        printf("EndLon: %f\n",curr->data->endLon);
+        curr = curr->next;
+        i++;
+    }
 }
 
 int main(){
@@ -168,7 +211,12 @@ int main(){
         insert(&head, buffer);
     }
 
+    printList(head);
+
     fclose(fPtr);
+    char a;
+    printf("Type anything to exit");
+    scanf("%c", &a);
 
     return 0;
 }
