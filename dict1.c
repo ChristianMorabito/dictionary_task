@@ -128,6 +128,7 @@ Record* importRec(char* stringRec){
         tmpField[i] = *stringRec;
         i++;
     }
+    // Fill the last struct descriptor outside the loop
     structRec->endLon = createDouble(tmpField);
     return structRec;
 }
