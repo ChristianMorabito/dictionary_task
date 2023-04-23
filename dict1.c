@@ -24,8 +24,8 @@ typedef struct{
     double startLon;
     double endLat;
     double endLon;
-
 }Record;
+
 typedef struct Node{
     Record* data;
     struct Node* next;
@@ -35,18 +35,20 @@ int createInt(char* tmpField){
     int converted;
     converted = strtol(tmpField, NULL, 10);
     return converted;
-
 }
+
 char* createString(int right, int left, char* tmpField){
     char* string = calloc(strlen(tmpField), sizeof(char));
     strncpy(string, tmpField, (right - left));
     return string;
 }
+
 double createDouble(char* tmpField){
     double converted;
     converted = strtod(tmpField, NULL);
     return converted;
 }
+
 void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int right, int left){
     switch (comma){
         case 1:
@@ -107,7 +109,6 @@ void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int rig
             printf("Error!!");
     }
 
-
 }
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
@@ -130,6 +131,7 @@ Record* importRec(char* stringRec){
     structRec->endLon = createDouble(tmpField);
     return structRec;
 }
+
 void insert(Node** head, char* strRec){
     // create struct Record
     Record* structRec = importRec(strRec);
@@ -142,6 +144,7 @@ void insert(Node** head, char* strRec){
         *head = newNode;
         return;
     }
+    // pointer that traverses from head, down the linked list
     Node* curr = *head;
     while (curr->next){
         curr = curr->next;
@@ -150,24 +153,22 @@ void insert(Node** head, char* strRec){
 }
 
 int main(){
-    // Head for Linked List
-    Node* head = NULL;
+    Node* head = NULL; // Head for Linked List
 
-    // Create file pointer & open file
-    FILE* fPtr;
+    FILE* fPtr; // Create file pointer & open file
     fPtr = fopen("dataset_20.csv", "r");
-    // Bypass first line (row headings)
-    fscanf(fPtr, "%*[^\n]\n");
-    // create buffer to hold each record that is iterated through
-    char buffer[MAX_RECORD];
-    // initalise buffer array
-    memset(buffer, '\0', MAX_RECORD);
+
+    fscanf(fPtr, "%*[^\n]\n"); // Bypass first line (row headings)
+    char buffer[MAX_RECORD]; // create buffer to hold each record that is iterated through
+    memset(buffer, '\0', MAX_RECORD); // initalise buffer array
+
     // while loop allows for the csv records/rows to be iterated through, until the end
     while(fgets(buffer,MAX_RECORD,fPtr) != NULL){
         // create a node, fill it with record data & link it to linked list
         insert(&head, buffer);
     }
 
+    // DON'T FORGET TO FREE MEMORY!!
     fclose(fPtr);
 
     return 0;
