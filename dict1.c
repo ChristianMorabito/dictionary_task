@@ -11,6 +11,8 @@ typedef struct{
     char* clueSa;
     char* assetType;
     double deltaZ;
+    double distance;
+    double grade1in;
     int mccId;
     int mccIdInt;
     double rLMax;
@@ -31,13 +33,22 @@ typedef struct Node{
 
 }Node;
 
+int createInt(char* tmpField){
+    int converted;
+    converted = strtol(tmpField, NULL, 10);
+    return converted;
+
+}
 char* createString(int right, int left, char* tmpField){
     char* string = calloc(strlen(tmpField), sizeof(char));
     strncpy(string, tmpField, (right - left));
     return string;
-
 }
-
+double createDouble(char* tmpField){
+    double converted;
+    converted = strtod(tmpField, NULL);
+    return converted;
+}
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
     int right, left=0;
@@ -49,7 +60,7 @@ Record* importRec(char* stringRec){
 
             switch (comma){
                 case 1:
-                    structRec->fPathId = atoi(tmpField);
+                    structRec->fPathId = createInt(tmpField);
                     break;
                 case 2:
                     structRec->address = createString(right, left, tmpField);
@@ -57,9 +68,53 @@ Record* importRec(char* stringRec){
                 case 3:
                     structRec->clueSa = createString(right, left, tmpField);
                     break;
-
+                case 4:
+                    structRec->assetType = createString(right, left, tmpField);
+                    break;
+                case 5:
+                    structRec->deltaZ = createDouble(tmpField);
+                    break;
+                case 6:
+                    structRec->distance = createDouble(tmpField);
+                    break;
+                case 7:
+                    structRec->grade1in = createDouble(tmpField);
+                    break;
+                case 8:
+                    structRec->mccId = createInt(tmpField);
+                    break;
+                case 9:
+                    structRec->mccIdInt = createInt(tmpField);
+                    break;
+                case 10:
+                    structRec->rLMax = createDouble(tmpField);
+                    break;
+                case 11:
+                    structRec->rLMin = createDouble(tmpField);
+                    break;
+                case 12:
+                    structRec->segSide = createString(right, left, tmpField);
+                    break;
+                case 13:
+                    structRec->statusId = createInt(tmpField);
+                    break;
+                case 14:
+                    structRec->streetId = createInt(tmpField);
+                    break;
+                case 15:
+                    structRec->streetGroup = createInt(tmpField);
+                    break;
+                case 16:
+                    structRec->startLat = createDouble(tmpField);
+                    break;
+                case 17:
+                    structRec->startLon = createDouble(tmpField);
+                    break;
+                case 18:
+                    structRec->endLat = createDouble(tmpField);
+                    break;
                 default:
-                    printf("Error");
+                    printf("Error!!");
             }
             memset(tmpField, '\0', (right-left)-1);
             left = right;
@@ -69,8 +124,8 @@ Record* importRec(char* stringRec){
         }
         tmpField[i] = *stringRec;
         i++;
-
     }
+    structRec->endLon = createDouble(tmpField);
     return structRec;
 }
 void insert(Node** head, char* strRec){
@@ -92,8 +147,7 @@ void insert(Node** head, char* strRec){
 int main(){
     Node* head = NULL;
 //    FILE* fPtr = fopen("prac.csv", "r");
-    char buffer[MAX_RECORD] = {"453452433,bob,carlton Road Footway,3.21"};
-//27,Palmerston Street between Rathdowne Street and Drummond Street,Carlton
+    char buffer[MAX_RECORD] = {"27665,Palmerston Street between Rathdowne Street and Drummond Street,Carlton,Road Footway,3.21,94.55,29.5,1384273.0,20684.0,35.49,32.28,North,2.0,955.0,28597.0,-37.796155887263744,144.97056424489568,-37.79606116572821,144.96941668057087"};
 //    fgets(buffer,MAX_RECORD,fPtr);
     insert(&head, buffer);
 
