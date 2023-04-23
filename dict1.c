@@ -30,7 +30,6 @@ typedef struct{
 typedef struct Node{
     Record* data;
     struct Node* next;
-
 }Node;
 
 int createInt(char* tmpField){
@@ -133,8 +132,8 @@ void insert(Node** head, char* strRec){
     Record* structRec = importRec(strRec);
     // create struct Node
     Node* newNode = malloc(sizeof(Node));
-    newNode->next = NULL;
     newNode->data = structRec;
+    newNode->next = NULL;
 
     if (!*head){
         *head = newNode;
@@ -146,9 +145,13 @@ void insert(Node** head, char* strRec){
 
 int main(){
     Node* head = NULL;
-//    FILE* fPtr = fopen("prac.csv", "r");
-    char buffer[MAX_RECORD] = {"27665,Palmerston Street between Rathdowne Street and Drummond Street,Carlton,Road Footway,3.21,94.55,29.5,1384273.0,20684.0,35.49,32.28,North,2.0,955.0,28597.0,-37.796155887263744,144.97056424489568,-37.79606116572821,144.96941668057087"};
-//    fgets(buffer,MAX_RECORD,fPtr);
-    insert(&head, buffer);
+    FILE* fPtr = fopen("dataset_1.csv", "r");
+//    fscanf(fPtr, "%*[^\n]\n");
+    char buffer[MAX_RECORD];
+    memset(buffer, '\0', MAX_RECORD);
+    fgets(buffer,MAX_RECORD,fPtr);
+    printf("%s", buffer);
+//    insert(&head, buffer);
+//    printf("Done!");
 
 }
