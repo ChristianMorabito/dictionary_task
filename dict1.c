@@ -26,15 +26,22 @@ typedef struct{
     double endLat;
     double endLon;
 }Record;
+
 typedef struct Node{
     Record* data;
     struct Node* next;
 }Node;
 
 int createInt(char* tmpField){
-    int converted;
-    converted = strtol(tmpField, NULL, 10);
-    return converted;
+    int convert;
+    convert = strtol(tmpField, NULL, 10);
+    return convert;
+}
+
+double createDouble(char* tmpField){
+    double convert;
+    convert = strtod(tmpField, NULL);
+    return convert;
 }
 
 char* createString(int right, int left, char* tmpField){
@@ -43,13 +50,7 @@ char* createString(int right, int left, char* tmpField){
     return string;
 }
 
-double createDouble(char* tmpField){
-    double converted;
-    converted = strtod(tmpField, NULL);
-    return converted;
-}
-
-void fillStructDescriptors(Record* structRec, int comma, char* tmpField, int right, int left){
+void fillRecordStruct(Record* structRec, int comma, char* tmpField, int right, int left){
     switch (comma){
         case 1:
             structRec->fPathId = createInt(tmpField);
@@ -117,21 +118,16 @@ Record* importRec(char* stringRec){
     bool quote = false;
     char tmpField[MAX_FIELD];
     memset(tmpField, '\0', MAX_FIELD);
+
     for (right=0; *stringRec != '\0'; right++, stringRec++){
 
         if (*stringRec == '"'){
-            if (quote){
-                quote = false;
-            }
-            else{
-                quote = true;
-            }
+            quote = quote ? false : true;
         }
 
         if (!quote && *stringRec == ','){
 
-            fillStructDescriptors(structRec, comma, tmpField, right, left);
-
+            fillRecordStruct(structRec, comma, tmpField, right, left);
             memset(tmpField, '\0', (right-left)-1);
             left = right;
             i = 0; // reset tmpField iterator
@@ -145,23 +141,33 @@ Record* importRec(char* stringRec){
     return structRec;
 }
 
-void insert(Node** head, char* strRec){
-    // create struct Record
-    Record* structRec = importRec(strRec);
-    // create struct Node
-    Node* newNode = malloc(sizeof(Node));
-    newNode->data = structRec;
-    newNode->next = NULL;
+void insert(Node** head, Node** tail, char* currRec){
+    Record* structRec = importRec(currRec); // create RECORD struct
 
+    Node* newNode = malloc(sizeof(Node)); // create NODE for linked list
+    newNode->data = structRec; // attach RECORD to NODE
+    newNode->next = NULL; // nullify .next pointer
+
+    // IF linked list is EMPTY
     if (!*head){
         *head = newNode;
+        *tail = newNode;
         return;
     }
-    Node* curr = *head;
-    while (curr->next){
-        curr = curr->next;
+
+    // IF linked list only has a single node attached
+    if (*head == *tail){
+        (*head)->next = newNode;
+        *tail = newNode;
+        return;
     }
-    curr->next = newNode;
+
+    // ELSE, IF linked list has more than one node in it.
+    if (*head != *tail){
+        (*tail)->next = newNode;
+        *tail = newNode;
+        return;
+    }
 }
 
 void printList(Node* curr){
@@ -169,9 +175,9 @@ void printList(Node* curr){
     while (curr){
         printf("\n__________________NODE %d__________________\n", i);
         printf("fPathID: %d\n",curr->data->fPathId);
-        printf("Address: %s\n",curr->data->address);
-        printf("ClueSa: %s\n",curr->data->clueSa);
-        printf("AssetType: %s\n",curr->data->assetType);
+        printf("Address: %s\n",strlen(curr->data->address) == 0 ? "EMPTY": curr->data->address);
+        printf("ClueSa: %s\n",strlen(curr->data->clueSa) == 0 ? "EMPTY": curr->data->clueSa);
+        printf("AssetType: %s\n",strlen(curr->data->assetType) == 0 ? "EMPTY": curr->data->assetType);
         printf("DeltaZ: %f\n",curr->data->deltaZ);
         printf("Distance: %f\n",curr->data->distance);
         printf("Grade1in: %f\n",curr->data->grade1in);
@@ -179,7 +185,7 @@ void printList(Node* curr){
         printf("MccIDint: %d\n",curr->data->mccIdInt);
         printf("R_Lmax: %f\n",curr->data->rLMax);
         printf("R_Lmin: %f\n",curr->data->rLMin);
-        printf("SegSide: %s\n",curr->data->segSide);
+        printf("SegSide: %s\n",strlen(curr->data->segSide) == 0 ? "EMPTY": curr->data->segSide);
         printf("StatusID: %d\n",curr->data->statusId);
         printf("StreetID: %d\n",curr->data->streetId);
         printf("StreetGroup: %d\n",curr->data->streetGroup);
@@ -193,29 +199,29 @@ void printList(Node* curr){
 }
 
 int main(){
-    // Head for Linked List
-    Node* head = NULL;
 
-    // Create file pointer & open file
-    FILE* fPtr;
-    fPtr = fopen("dataset_20.csv", "r");
-    // Bypass first line (row headings)
-    fscanf(fPtr, "%*[^\n]\n");
-    // create buffer to hold each record that is iterated through
-    char buffer[MAX_RECORD];
-    // initalise buffer array
-    memset(buffer, '\0', MAX_RECORD);
-    // while loop allows for the csv records/rows to be iterated through, until the end
-    while(fgets(buffer,MAX_RECORD,fPtr) != NULL){
-        // create a node, fill it with record data & link it to linked list
-        insert(&head, buffer);
+    Node* head = NULL; // Initialise linked list head,
+    Node* tail = NULL; //   and tail.
+
+    FILE* fp; // Create file pointer & open file
+    fp = fopen("testdata_100.csv", "r"); // open file to be read
+
+    fscanf(fp, "%*[^\n]\n"); // bypass first line (row headings)
+    char buffer[MAX_RECORD]; // create buffer to hold each record that is iterated through
+
+    memset(buffer, '\0', MAX_RECORD); // initialise buffer array
+
+    // while loop allows for the csv rows to be iterated through, until the end
+    while(fgets(buffer, MAX_RECORD, fp) != NULL){
+        insert(&head, &tail, buffer); // create a node, fill it with record data & link it to linked list
     }
 
-    printList(head);
+    fclose(fp); // close file
+    printList(head); // TEST print
 
-    fclose(fPtr);
+    // IGNORE (below code is temporary so the terminal doesn't close after printing list)
     char a;
-    printf("Type anything to exit");
+    printf("\nPress ENTER to Exit");
     scanf("%c", &a);
 
     return 0;
