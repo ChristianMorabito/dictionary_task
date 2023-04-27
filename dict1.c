@@ -32,6 +32,21 @@ typedef struct Node{
     struct Node* next;
 }Node;
 
+void freeList(Node* curr){
+    Node* temp;
+    while (curr != NULL){
+        temp = curr;
+        curr = curr->next;
+        free(temp->data->address);
+        free(temp->data->assetType);
+        free(temp->data->clueSa);
+        free(temp->data->segSide);
+        free(temp->data);
+        free(temp);
+    }
+
+}
+
 int createInt(char* tmpField){
     int convert;
     convert = strtol(tmpField, NULL, 10);
@@ -170,35 +185,44 @@ void insert(Node** head, Node** tail, char* currRec){
     }
 }
 
-void printList(Node* curr){
-    int i = 1;
-    while (curr){
-        printf("\n__________________NODE %d__________________\n", i);
-        printf("fPathID: %d\n",curr->data->fPathId);
-        printf("Address: %s\n",strlen(curr->data->address) == 0 ? "EMPTY": curr->data->address);
-        printf("ClueSa: %s\n",strlen(curr->data->clueSa) == 0 ? "EMPTY": curr->data->clueSa);
-        printf("AssetType: %s\n",strlen(curr->data->assetType) == 0 ? "EMPTY": curr->data->assetType);
-        printf("DeltaZ: %f\n",curr->data->deltaZ);
-        printf("Distance: %f\n",curr->data->distance);
-        printf("Grade1in: %f\n",curr->data->grade1in);
-        printf("MccID: %d\n",curr->data->mccId);
-        printf("MccIDint: %d\n",curr->data->mccIdInt);
-        printf("R_Lmax: %f\n",curr->data->rLMax);
-        printf("R_Lmin: %f\n",curr->data->rLMin);
-        printf("SegSide: %s\n",strlen(curr->data->segSide) == 0 ? "EMPTY": curr->data->segSide);
-        printf("StatusID: %d\n",curr->data->statusId);
-        printf("StreetID: %d\n",curr->data->streetId);
-        printf("StreetGroup: %d\n",curr->data->streetGroup);
-        printf("StartLat: %f\n",curr->data->startLat);
-        printf("StartLon: %f\n",curr->data->startLon);
-        printf("EndLat: %f\n",curr->data->endLat);
-        printf("EndLon: %f\n",curr->data->endLon);
+void searchList(Node* curr, char* buffer){
+    int i = 0;
+    int value;
+
+    while (curr) {
+        value = strcmp(buffer, curr->data->address);
+        if (value == 0){
+//            printf("fPathID: %d\n", curr->data->fPathId);
+//            printf("Address: %s\n", strlen(curr->data->address) == 0 ? "EMPTY" : curr->data->address);
+//            printf("ClueSa: %s\n", strlen(curr->data->clueSa) == 0 ? "EMPTY" : curr->data->clueSa);
+//            printf("AssetType: %s\n", strlen(curr->data->assetType) == 0 ? "EMPTY" : curr->data->assetType);
+//            printf("DeltaZ: %f\n", curr->data->deltaZ);
+//            printf("Distance: %f\n", curr->data->distance);
+//            printf("Grade1in: %f\n", curr->data->grade1in);
+//            printf("MccID: %d\n", curr->data->mccId);
+//            printf("MccIDint: %d\n", curr->data->mccIdInt);
+//            printf("R_Lmax: %f\n", curr->data->rLMax);
+//            printf("R_Lmin: %f\n", curr->data->rLMin);
+//            printf("SegSide: %s\n", strlen(curr->data->segSide) == 0 ? "EMPTY" : curr->data->segSide);
+//            printf("StatusID: %d\n", curr->data->statusId);
+//            printf("StreetID: %d\n", curr->data->streetId);
+//            printf("StreetGroup: %d\n", curr->data->streetGroup);
+//            printf("StartLat: %f\n", curr->data->startLat);
+//            printf("StartLon: %f\n", curr->data->startLon);
+//            printf("EndLat: %f\n", curr->data->endLat);
+//            printf("EndLon: %f\n", curr->data->endLon);
+            i++;
+        }
         curr = curr->next;
-        i++;
     }
+    // Print statement, eg. Wimble Street between Morrah Street and Park Drive --> 54
+    //                  eg. (unfilled address) --> 43
+    //                  eg. Cheese Street --> NOTFOUND
+    *buffer == '\0' ? printf("(unfilled address)") : printf("%s", buffer);
+    i == 0 ? printf(" --> NOTFOUND\n") : printf(" --> %d\n", i);
 }
 
-int main(){
+int main(int argc, char** argv){
 
     Node* head = NULL; // Initialise linked list head,
     Node* tail = NULL; //   and tail.
@@ -215,14 +239,19 @@ int main(){
     while(fgets(buffer, MAX_RECORD, fp) != NULL){
         insert(&head, &tail, buffer); // create a node, fill it with record data & link it to linked list
     }
-
     fclose(fp); // close file
-    printList(head); // TEST print
 
-    // IGNORE (below code is temporary so the terminal doesn't close after printing list)
-    char a;
-    printf("\nPress ENTER to Exit");
-    scanf("%c", &a);
+//    fp = fopen(*(argv + 2), "w");
+
+    char inputBuffer[MAX_FIELD];
+    while (fgets(inputBuffer, sizeof(inputBuffer), stdin) != NULL){
+        inputBuffer[strlen(inputBuffer)-1] = '\0'; // This line is to overwrite the trailing '\n'.
+        searchList(head, buffer); // TEST print
+    }
+    printf("\n--PROGRAM ENDED--\n");
+    // FREE MEMORY FOR EXIT
+    freeList(head);
+
 
     return 0;
 }
