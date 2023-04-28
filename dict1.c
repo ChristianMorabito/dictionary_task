@@ -60,7 +60,7 @@ double createDouble(char* tmpField){
 }
 
 char* createString(int right, int left, char* tmpField){
-    char* string = calloc(strlen(tmpField), sizeof(char));
+    char* string = calloc(strlen(tmpField) + 1, sizeof(char));
     strncpy(string, tmpField, (right - left));
     return string;
 }
@@ -143,8 +143,8 @@ Record* importRec(char* stringRec){
         if (!quote && *stringRec == ','){
 
             fillRecordStruct(structRec, comma, tmpField, right, left);
-            memset(tmpField, '\0', (right-left)-1);
-            left = right;
+            memset(tmpField, '\0', (right-left));
+            left = right+1;
             i = 0; // reset tmpField iterator
             comma++;
             continue;
@@ -185,41 +185,63 @@ void insert(Node** head, Node** tail, char* currRec){
     }
 }
 
-void searchList(Node* curr, char* buffer){
+void writeData(FILE* fpWrite, Node* curr){
+    fprintf(fpWrite,"\tfPathID: %d\t||", curr->data->fPathId);
+    fprintf(fpWrite,"\tAddress: %s\t||", strlen(curr->data->address) == 0 ? "EMPTY" : curr->data->address);
+    fprintf(fpWrite,"\tClueSa: %s\t||", strlen(curr->data->clueSa) == 0 ? "EMPTY" : curr->data->clueSa);
+    fprintf(fpWrite,"\tAssetType: %s\t||", strlen(curr->data->assetType) == 0 ? "EMPTY" : curr->data->assetType);
+    fprintf(fpWrite,"\tDeltaZ: %f\t||", curr->data->deltaZ);
+    fprintf(fpWrite,"\tDistance: %f\t||", curr->data->distance);
+    fprintf(fpWrite,"\tGrade1in: %f\t||", curr->data->grade1in);
+    fprintf(fpWrite,"\tMccID: %d\t||", curr->data->mccId);
+    fprintf(fpWrite,"\tMccIDint: %d\t||", curr->data->mccIdInt);
+    fprintf(fpWrite,"\tR_Lmax: %f\t||", curr->data->rLMax);
+    fprintf(fpWrite,"\tR_Lmin: %f\t||", curr->data->rLMin);
+    fprintf(fpWrite,"\tSegSide: %s\t||", strlen(curr->data->segSide) == 0 ? "EMPTY" : curr->data->segSide);
+    fprintf(fpWrite,"\tStatusID: %d\t||", curr->data->statusId);
+    fprintf(fpWrite,"\tStreetID: %d\t||", curr->data->streetId);
+    fprintf(fpWrite,"\tStreetGroup: %d\t||", curr->data->streetGroup);
+    fprintf(fpWrite,"\tStartLat: %f\t||", curr->data->startLat);
+    fprintf(fpWrite,"\tStartLon: %f\t||", curr->data->startLon);
+    fprintf(fpWrite,"\tEndLat: %f\t||", curr->data->endLat);
+    fprintf(fpWrite,"\tEndLon: %f\n", curr->data->endLon);
+
+}
+
+void outputText(Node* curr, bool* exit, FILE* fpWrite){
+
     int i = 0;
     int value;
 
-    while (curr) {
+    char buffer[MAX_FIELD];
+    memset(buffer, '\0', MAX_FIELD);
+    printf("Enter Address:\t");
+    fgets(buffer, sizeof(buffer), stdin);
+    *buffer == '\n' ? fputs("(unfilled address)\n", fpWrite) : fputs(buffer, fpWrite);
+    buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
+
+
+    if (feof(stdin)){
+        *exit = true;
+        return;
+    }
+
+    while (curr){
         value = strcmp(buffer, curr->data->address);
-        if (value == 0){
-//            printf("fPathID: %d\n", curr->data->fPathId);
-//            printf("Address: %s\n", strlen(curr->data->address) == 0 ? "EMPTY" : curr->data->address);
-//            printf("ClueSa: %s\n", strlen(curr->data->clueSa) == 0 ? "EMPTY" : curr->data->clueSa);
-//            printf("AssetType: %s\n", strlen(curr->data->assetType) == 0 ? "EMPTY" : curr->data->assetType);
-//            printf("DeltaZ: %f\n", curr->data->deltaZ);
-//            printf("Distance: %f\n", curr->data->distance);
-//            printf("Grade1in: %f\n", curr->data->grade1in);
-//            printf("MccID: %d\n", curr->data->mccId);
-//            printf("MccIDint: %d\n", curr->data->mccIdInt);
-//            printf("R_Lmax: %f\n", curr->data->rLMax);
-//            printf("R_Lmin: %f\n", curr->data->rLMin);
-//            printf("SegSide: %s\n", strlen(curr->data->segSide) == 0 ? "EMPTY" : curr->data->segSide);
-//            printf("StatusID: %d\n", curr->data->statusId);
-//            printf("StreetID: %d\n", curr->data->streetId);
-//            printf("StreetGroup: %d\n", curr->data->streetGroup);
-//            printf("StartLat: %f\n", curr->data->startLat);
-//            printf("StartLon: %f\n", curr->data->startLon);
-//            printf("EndLat: %f\n", curr->data->endLat);
-//            printf("EndLon: %f\n", curr->data->endLon);
+        if (value == 0) {
+            writeData(fpWrite, curr);
             i++;
         }
         curr = curr->next;
     }
-    // Print statement, eg. Wimble Street between Morrah Street and Park Drive --> 54
-    //                  eg. (unfilled address) --> 43
-    //                  eg. Cheese Street --> NOTFOUND
+    if (i == 0){
+        fputs("\tNOTFOUND\n", fpWrite);
+    }
+
+    // STDOUT PRINT STATEMENT
     *buffer == '\0' ? printf("(unfilled address)") : printf("%s", buffer);
     i == 0 ? printf(" --> NOTFOUND\n") : printf(" --> %d\n", i);
+
 }
 
 int main(int argc, char** argv){
@@ -227,27 +249,27 @@ int main(int argc, char** argv){
     Node* head = NULL; // Initialise linked list head,
     Node* tail = NULL; //   and tail.
 
-    FILE* fp; // Create file pointer & open file
-    fp = fopen("testdata_100.csv", "r"); // open file to be read
+    FILE* fpRead = fopen(*(argv + 1), "r"); // open file to be read
 
-    fscanf(fp, "%*[^\n]\n"); // bypass first line (row headings)
+    fscanf(fpRead, "%*[^\n]\n"); // bypass first line (row headings)
     char buffer[MAX_RECORD]; // create buffer to hold each record that is iterated through
 
     memset(buffer, '\0', MAX_RECORD); // initialise buffer array
 
     // while loop allows for the csv rows to be iterated through, until the end
-    while(fgets(buffer, MAX_RECORD, fp) != NULL){
+    while(fgets(buffer, MAX_RECORD, fpRead) != NULL){
         insert(&head, &tail, buffer); // create a node, fill it with record data & link it to linked list
     }
-    fclose(fp); // close file
+    fclose(fpRead); // close file
 
-//    fp = fopen(*(argv + 2), "w");
-
-    char inputBuffer[MAX_FIELD];
-    while (fgets(inputBuffer, sizeof(inputBuffer), stdin) != NULL){
-        inputBuffer[strlen(inputBuffer)-1] = '\0'; // This line is to overwrite the trailing '\n'.
-        searchList(head, buffer); // TEST print
+    FILE* fpWrite = fopen(*(argv + 2), "w"); // create txt file to be written
+    bool exit = false; // used to exit out of loop
+    while (!exit){
+        // function used to output text to file & STDOUT
+        outputText(head, &exit, fpWrite);
     }
+    fclose(fpWrite); // close file
+
     printf("\n--PROGRAM ENDED--\n");
     // FREE MEMORY FOR EXIT
     freeList(head);
