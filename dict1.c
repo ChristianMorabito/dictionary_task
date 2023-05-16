@@ -59,7 +59,7 @@ double createDouble(char* tmpField){
 char* createString(int right, int left, char* tmpField){
     char* string = calloc(strlen(tmpField) + 1, sizeof(char));
     if (string == NULL){
-        printf("Error: Out of memory\n");
+        printf("Error: Out of memory. Exiting...\n");
         exit(-1);
     }
     strncpy(string, tmpField, (right - left));
@@ -131,7 +131,7 @@ void fillRecordStruct(Record* structRec, int comma, char* tmpField, int right, i
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
     if (structRec == NULL){
-        printf("Error: Out of memory\n");
+        printf("Error: Out of memory. Exiting...\n");
         exit(-1);
     }
     int right, left=0;
@@ -174,7 +174,7 @@ void insert(Node** head, Node** tail, void* data){
 
     Node* newNode = malloc(sizeof(Node)); // create NODE for linked list
     if (newNode == NULL){
-        printf("Error: Out of memory\n");
+        printf("Error: Out of memory. Exiting...\n");
         exit(-1);
     }
     newNode->data = data; // attach RECORD to NODE
@@ -260,7 +260,11 @@ int main(int argc, char** argv){
     Node* tail = NULL; //   and tail.
     Record* data = NULL;
 
-    FILE* fpRead = fopen("dataset_2.csv", "r"); // open file to be read
+    FILE* fpRead = fopen(*(argv + 1), "r"); // open file to be read
+    if (fpRead == NULL){
+        printf("File could not be opened! Exiting...");
+        exit(-1);
+    }
 
     fscanf(fpRead, "%*[^\n]\n"); // bypass first line (row headings)
     char buffer[MAX_RECORD]; // create buffer to hold each record that is iterated through
@@ -275,7 +279,11 @@ int main(int argc, char** argv){
     fclose(fpRead); // close file
 
 
-    FILE* fpWrite = fopen("output.txt", "w"); // create txt file to be written
+    FILE* fpWrite = fopen(*(argv + 2), "w"); // create txt file to be written
+    if (fpWrite == NULL){
+        printf("File could not be written! Exiting...");
+        exit(-1);
+    }
     bool exit = false; // used to exit out of loop
     while (!exit){
         // function used to output text to file & STDOUT
