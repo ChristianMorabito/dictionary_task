@@ -1,7 +1,9 @@
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
 #include "data.h"
-#define MAX_FIELD 128
+#include "linked_list.h"
 
 int createInt(char* tmpField){
     int convert;
@@ -129,9 +131,73 @@ void freeRecordData(void* voidData){
     free(data->segSide);
 }
 
+void outputText(void** data, bool* exit, FILE* fpWrite, void(outputStructure)(void**, bool*, FILE*, char*)) {
+    char buffer[MAX_FIELD];
+    memset(buffer, '\0', MAX_FIELD);
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL){
+        *exit = true;
+        return;
+    }
+    outputStructure(data, exit, fpWrite, buffer);
+}
 
-void writeData(FILE* fpWrite, Node* curr){
-    Record* data = curr->data;
+void outputDynamicList(void** voidData, bool* exit, FILE* fpWrite, char* buffer){
+    *buffer == '\n' ? fputs("0.00\n", fpWrite) : fputs(buffer, fpWrite);
+    buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
+
+    // CREATE DOUBLE
+    double input = createDouble(buffer);
+
+    bool maxCheck = true;
+
+    Record** data = (Record**)(Record*)voidData;
+
+    while (*data){
+        if ((*data)->grade1in > input){
+            writeData(fpWrite, *data); // OUTPUT TEXT TO FILE
+            printf("%.2f --> %.2f\n", input, (*data)->grade1in); // STDOUT PRINT STATEMENT
+            maxCheck = false;
+            break;
+        }
+        data++;
+    }
+    if (maxCheck){
+        printf("NUMBER TOO HIGH. Max is: %.2f\n", (*(data-1))->grade1in); // STDOUT PRINT STATEMENT
+        fputs("-->\tNUMBER TOO HIGH\n", fpWrite); // OUTPUT TEXT TO FILE
+    }
+}
+
+void outputLinkedList(void** voidData, bool* exit, FILE* fpWrite, char* buffer){
+
+    int i = 0;
+    int value;
+
+    *buffer == '\n' ? fputs("(unfilled address)\n", fpWrite) : fputs(buffer, fpWrite);
+    buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
+
+    Node* curr = (Node*)(voidData);
+
+    while (curr){
+        Record* data = curr->data;
+        value = strcmp(buffer, data->address);
+        if (value == 0) {
+            writeData(fpWrite, curr->data);
+            i++;
+        }
+        curr = curr->next;
+    }
+    if (i == 0){
+        fputs("\tNOTFOUND\n", fpWrite);
+    }
+
+    // STDOUT PRINT STATEMENT
+    *buffer == '\0' ? printf("(unfilled address)") : printf("%s", buffer);
+    i == 0 ? printf(" --> NOTFOUND\n") : printf(" --> %d\n", i);
+}
+
+
+void writeData(FILE* fpWrite, Record* data){
+    fprintf(fpWrite, "-->");
     fprintf(fpWrite,"\tfPathID: %d\t||", data->fPathId);
     fprintf(fpWrite,"\tAddress: %s\t||", strlen(data->address) == 0 ? "EMPTY" : data->address);
     fprintf(fpWrite,"\tClueSa: %s\t||", strlen(data->clueSa) == 0 ? "EMPTY" : data->clueSa);
@@ -151,42 +217,6 @@ void writeData(FILE* fpWrite, Node* curr){
     fprintf(fpWrite,"\tStartLon: %f\t||", data->startLon);
     fprintf(fpWrite,"\tEndLat: %f\t||", data->endLat);
     fprintf(fpWrite,"\tEndLon: %f\n", data->endLon);
-
-}
-
-void outputText(Node* curr, bool* exit, FILE* fpWrite){
-
-    int i = 0;
-    int value;
-
-    char buffer[MAX_FIELD];
-    memset(buffer, '\0', MAX_FIELD);
-    printf("Enter Address:\t");
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL){
-        *exit = true;
-        return;
-    };
-    *buffer == '\n' ? fputs("(unfilled address)\n", fpWrite) : fputs(buffer, fpWrite);
-    buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
-
-
-    while (curr){
-        Record* data = curr->data;
-        value = strcmp(buffer, data->address);
-        if (value == 0) {
-            writeData(fpWrite, curr);
-            i++;
-        }
-        curr = curr->next;
-    }
-    if (i == 0){
-        fputs("\tNOTFOUND\n", fpWrite);
-    }
-
-    // STDOUT PRINT STATEMENT
-    *buffer == '\0' ? printf("(unfilled address)") : printf("%s", buffer);
-    i == 0 ? printf(" --> NOTFOUND\n") : printf(" --> %d\n", i);
-
 }
 
 

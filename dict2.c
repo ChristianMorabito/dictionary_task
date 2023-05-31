@@ -1,20 +1,21 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include "linked_list.h"
+#include <stdbool.h>
 #include "data.h"
+#include "dynamic_list.h"
+#include "sort.h"
 #define MAX_RECORD 512
 
 
-
-int main(int argc, char** argv){
-
-    Node* head = NULL; // Initialise linked list head,
-    Node* tail = NULL; //   and tail.
+int main(int argv, char* argc[]){
     Record* data = NULL;
+    ListHead* head = createHead();
+    initialize(head); // create Record list to fill first item
 
-    FILE* fpRead = fopen(argv[1], "r"); // open file to be read
+    FILE* fpRead = fopen(argc[1], "r"); // open file to be read
     if (fpRead == NULL){
-        printf("File could not be opened! Exiting...");
+        printf("File could not be opened! Exiting...\n");
         exit(-1);
     }
 
@@ -24,28 +25,33 @@ int main(int argc, char** argv){
     memset(buffer, '\0', MAX_RECORD); // initialise buffer array
 
     // while loop allows for the csv rows to be iterated through, until the end
+    int i = 0; //
     while(fgets(buffer, MAX_RECORD, fpRead) != NULL){
         data = importRec(buffer);
-        insert(&head, &tail, data); // create a node, fill it with record data & link it to linked list
+        appendList(&head, data);
+        i++;
     }
+    appendList(&head, NULL);
     fclose(fpRead); // close file
 
+//  SORT
+    divide((Record** )(Record* )(head->data), 0, i-1);
 
-    FILE* fpWrite = fopen(argv[2], "w"); // create txt file to be written
+    FILE* fpWrite = fopen(argc[2], "w"); // create txt file to be written
     if (fpWrite == NULL){
-        printf("File could not be written! Exiting...");
+        printf("File could not be written! Exiting...\n");
         exit(-1);
     }
     bool exit = false; // used to exit out of loop
     while (!exit){
         // function used to output text to file & STDOUT
-        outputText((void **)head, &exit, fpWrite, outputLinkedList);
+        outputText(head->data, &exit, fpWrite, outputDynamicList);
     }
     fclose(fpWrite); // close file
 
     printf("\n--PROGRAM ENDED--\n");
 //  FREE MEMORY FOR EXIT
-    freeLinkedList(head, freeRecordData);
+    freeDynamicList(&head, freeRecordData);
 
 
     return 0;

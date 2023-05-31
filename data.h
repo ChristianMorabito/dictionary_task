@@ -1,8 +1,9 @@
 #ifndef DATA_H
 #define DATA_H
+#define MAX_FIELD 128
 
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "linked_list.h"
 
 typedef struct{
@@ -39,10 +40,13 @@ Record* importRec(char* stringRec);
 
 void freeRecordData(void* voidData);
 
-void writeData(FILE* fpWrite, Node* curr);
+void writeData(FILE* fpWrite, Record* data);
 
-void outputText(Node* curr, bool* exit, FILE* fpWrite);
+void outputText(void** data, bool* exit, FILE* fpWrite, void(outputStructure)(void**, bool*, FILE*, char*));
+
+void outputDynamicList(void** voidData, bool* exit, FILE* fpWrite, char* buffer);
+
+void outputLinkedList(void** data, bool* exit, FILE* fpWrite, char* buffer);
 
 
-
-#endif DATA_H
+#endif // DATA_H
