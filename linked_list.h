@@ -1,22 +1,14 @@
-#ifndef DYNAMIC_LIST_H
-#define DYNAMIC_LIST_H
+#ifndef LINKED_LIST_H
+#define LINKED_LIST_H
 
-#include <stdlib.h>
-#include "data.h"
+typedef struct Node{
+    void* data;
+    struct Node* next;
+}Node;
 
-typedef struct{
-    size_t filled;
-    size_t size;
-    void** data;
-}ListHead;
+void freeLinkedList(Node* curr, void(freeData)(void* data));
 
-void initialize(ListHead* head);
-
-ListHead* createHead();
-
-void appendList(ListHead** head, void* data);
-
-void freeDynamicList(ListHead** head, void(freeData)(void* data));
+void insert(Node** head, Node** tail, void* data);
 
 
-#endif // DYNAMIC_LIST_H
+#endif // LINKED_LIST_H
