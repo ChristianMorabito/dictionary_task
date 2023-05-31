@@ -6,3 +6,5 @@
 Folder.png
 Notes.txt
 CMakeLists.txt
+/cmake-build-debug/
+/.idea
