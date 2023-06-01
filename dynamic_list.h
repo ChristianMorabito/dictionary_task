@@ -12,7 +12,7 @@ typedef struct{
 
 ListHead* createHead();
 
-void appendList(ListHead** head, void* data);
+void appendList(ListHead* head, void* data);
 
 void freeDynamicList(ListHead** head, void(freeData)(void* data));
 

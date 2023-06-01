@@ -25,18 +25,18 @@ ListHead* createHead(){
     return head;
 }
 
-void appendList(ListHead** head, void* data){
-    size_t filled = (*head)->filled;
-    size_t size = (*head)->size;
+void appendList(ListHead* head, void* data){
+    size_t filled = head->filled;
+    size_t size = head->size;
     if (size - (filled + 1) < 1){
-        (*head)->data = realloc((*head)->data, sizeof(void*) * (size * 2));
-        if ((*head)->data == NULL){
+        head->data = realloc(head->data, sizeof(void*) * (size * 2));
+        if (head->data == NULL){
             printf("REALLOC FAILED");
             exit(-1);
         }
-        (*head)->size *= 2;
+        head->size *= 2;
     }
-    (*head)->data[filled] = data;
-    (*head)->filled++;
+    head->data[filled] = data;
+    head->filled++;
 }
 
