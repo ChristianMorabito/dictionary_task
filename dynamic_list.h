@@ -10,8 +10,6 @@ typedef struct{
     void** data;
 }ListHead;
 
-void initialize(ListHead* head);
-
 ListHead* createHead();
 
 void appendList(ListHead** head, void* data);

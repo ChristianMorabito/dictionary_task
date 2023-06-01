@@ -14,15 +14,15 @@ int sort(Record** array, int left, int right){
             j--;
         }
         if (i < j){
-            double temp = (*(array + i))->grade1in;
-            (*(array + i))->grade1in = (*(array + j))->grade1in;
-            (*(array + j))->grade1in = temp;
+            Record* temp = *(array + i);
+            *(array + i) = *(array + j);
+            *(array + j) = temp;
         }
     }
     if ((*(array + i))->grade1in > pivot){
-        double temp = (*(array + i))->grade1in;
-        (*(array + i))->grade1in = (*(array + right))->grade1in;
-        (*(array + right))->grade1in = temp;
+        Record* temp = *(array + i);
+        *(array + i) = *(array + right);
+        *(array + right) = temp;
     }
     return i;
 }

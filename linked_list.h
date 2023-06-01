@@ -6,9 +6,17 @@ typedef struct Node{
     struct Node* next;
 }Node;
 
-void freeLinkedList(Node* curr, void(freeData)(void* data));
+typedef struct{
+    Node* head;
+    Node* tail;
+}LinkedList;
 
-void insert(Node** head, Node** tail, void* data);
+
+LinkedList* create();
+
+void freeLinkedList(LinkedList* linkedList, void(freeData)(void* data));
+
+void insert(LinkedList* linkedList, void* data);
 
 
 #endif // LINKED_LIST_H

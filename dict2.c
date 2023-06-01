@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 #include "data.h"
 #include "dynamic_list.h"
 #include "sort.h"
@@ -11,7 +10,6 @@
 int main(int argv, char* argc[]){
     Record* data = NULL;
     ListHead* head = createHead();
-    initialize(head); // create Record list to fill first item
 
     FILE* fpRead = fopen(argc[1], "r"); // open file to be read
     if (fpRead == NULL){
@@ -35,18 +33,17 @@ int main(int argv, char* argc[]){
     fclose(fpRead); // close file
 
 //  SORT
-    divide((Record** )(Record* )(head->data), 0, i-1);
+    divide((Record** )(head->data), 0, i-1);
 
     FILE* fpWrite = fopen(argc[2], "w"); // create txt file to be written
     if (fpWrite == NULL){
         printf("File could not be written! Exiting...\n");
         exit(-1);
     }
-    bool exit = false; // used to exit out of loop
-    while (!exit){
-        // function used to output text to file & STDOUT
-        outputText(head->data, &exit, fpWrite, outputDynamicList);
+
+    while (outputText(head->data, fpWrite, outputDynamicList)){
     }
+
     fclose(fpWrite); // close file
 
     printf("\n--PROGRAM ENDED--\n");

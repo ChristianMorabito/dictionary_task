@@ -42,11 +42,11 @@ void freeRecordData(void* voidData);
 
 void writeData(FILE* fpWrite, Record* data);
 
-void outputText(void** data, bool* exit, FILE* fpWrite, void(outputStructure)(void**, bool*, FILE*, char*));
+bool outputText(void* data, FILE* fpWrite, void(outputStructure)(void*, FILE*, char*));
 
-void outputDynamicList(void** voidData, bool* exit, FILE* fpWrite, char* buffer);
+void outputDynamicList(void* voidData, FILE* fpWrite, char* buffer);
 
-void outputLinkedList(void** data, bool* exit, FILE* fpWrite, char* buffer);
+void outputLinkedList(void* data, FILE* fpWrite, char* buffer);
 
 
 #endif // DATA_H

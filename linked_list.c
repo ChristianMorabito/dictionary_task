@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include "linked_list.h"
 
-void freeLinkedList(Node* curr, void(freeData)(void* data)){
+void freeLinkedList(LinkedList* linkedList, void(freeData)(void* data)){
+    Node* curr = linkedList->head;
     Node* temp;
     while (curr != NULL){
         temp = curr;
@@ -11,9 +12,10 @@ void freeLinkedList(Node* curr, void(freeData)(void* data)){
         free(temp->data);
         free(temp);
     }
+    free(linkedList);
 }
 
-void insert(Node** head, Node** tail, void* data){
+void insert(LinkedList* linkedList, void* data){
 
     Node* newNode = malloc(sizeof(Node)); // create NODE for linked list
     if (newNode == NULL){
@@ -24,15 +26,28 @@ void insert(Node** head, Node** tail, void* data){
     newNode->next = NULL; // nullify .next pointer
 
     // IF linked list is EMPTY
-    if (!*head){
-        *head = newNode;
-        *tail = newNode;
+    if (!linkedList->head){
+        linkedList->head = newNode;
+        linkedList->tail = newNode;
         return;
     }
 
     else {
-        (*tail)->next = newNode;
-        *tail = newNode;
+        linkedList->tail->next = newNode;
+        linkedList->tail = newNode;
         return;
     }
+}
+
+LinkedList* create(){
+
+    LinkedList* linkedList = malloc(sizeof(LinkedList));
+    if (linkedList == NULL){
+        printf("MALLOC FAILED. Exiting...\n");
+        exit(-1);
+    }
+    linkedList->head = NULL;
+    linkedList->tail = NULL;
+
+    return linkedList;
 }

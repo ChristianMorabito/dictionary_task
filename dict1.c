@@ -5,16 +5,15 @@
 #define MAX_RECORD 512
 
 
+int main(int argv, char** argc){
 
-int main(int argc, char** argv){
+    LinkedList* linkedList = create(); // initalise linkedList head & tail.
 
-    Node* head = NULL; // Initialise linked list head,
-    Node* tail = NULL; //   and tail.
     Record* data = NULL;
 
-    FILE* fpRead = fopen(argv[1], "r"); // open file to be read
+    FILE* fpRead = fopen(argc[1], "r"); // open file to be read
     if (fpRead == NULL){
-        printf("File could not be opened! Exiting...");
+        printf("File could not be opened! Exiting...\n");
         exit(-1);
     }
 
@@ -26,26 +25,23 @@ int main(int argc, char** argv){
     // while loop allows for the csv rows to be iterated through, until the end
     while(fgets(buffer, MAX_RECORD, fpRead) != NULL){
         data = importRec(buffer);
-        insert(&head, &tail, data); // create a node, fill it with record data & link it to linked list
+        insert(linkedList, data); // create a node, fill it with record data & link it to linked list
     }
     fclose(fpRead); // close file
 
 
-    FILE* fpWrite = fopen(argv[2], "w"); // create txt file to be written
+    FILE* fpWrite = fopen(argc[2], "w"); // create txt file to be written
     if (fpWrite == NULL){
         printf("File could not be written! Exiting...");
         exit(-1);
     }
-    bool exit = false; // used to exit out of loop
-    while (!exit){
-        // function used to output text to file & STDOUT
-        outputText((void **)head, &exit, fpWrite, outputLinkedList);
+    while (outputText((void *)linkedList, fpWrite, outputLinkedList)){
     }
     fclose(fpWrite); // close file
 
     printf("\n--PROGRAM ENDED--\n");
 //  FREE MEMORY FOR EXIT
-    freeLinkedList(head, freeRecordData);
+    freeLinkedList(linkedList, freeRecordData);
 
 
     return 0;

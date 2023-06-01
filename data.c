@@ -131,17 +131,17 @@ void freeRecordData(void* voidData){
     free(data->segSide);
 }
 
-void outputText(void** data, bool* exit, FILE* fpWrite, void(outputStructure)(void**, bool*, FILE*, char*)) {
+bool outputText(void* data, FILE* fpWrite, void(outputStructure)(void*, FILE*, char*)) {
     char buffer[MAX_FIELD];
     memset(buffer, '\0', MAX_FIELD);
     if (fgets(buffer, sizeof(buffer), stdin) == NULL){
-        *exit = true;
-        return;
+        return false;
     }
-    outputStructure(data, exit, fpWrite, buffer);
+    outputStructure(data, fpWrite, buffer);
+    return true;
 }
 
-void outputDynamicList(void** voidData, bool* exit, FILE* fpWrite, char* buffer){
+void outputDynamicList(void* voidData, FILE* fpWrite, char* buffer){
     *buffer == '\n' ? fputs("0.00\n", fpWrite) : fputs(buffer, fpWrite);
     buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
 
@@ -167,7 +167,7 @@ void outputDynamicList(void** voidData, bool* exit, FILE* fpWrite, char* buffer)
     }
 }
 
-void outputLinkedList(void** voidData, bool* exit, FILE* fpWrite, char* buffer){
+void outputLinkedList(void* voidData, FILE* fpWrite, char* buffer){
 
     int i = 0;
     int value;
@@ -175,7 +175,8 @@ void outputLinkedList(void** voidData, bool* exit, FILE* fpWrite, char* buffer){
     *buffer == '\n' ? fputs("(unfilled address)\n", fpWrite) : fputs(buffer, fpWrite);
     buffer[strlen(buffer) - 1] = '\0'; // This line is to overwrite the trailing '\n'.
 
-    Node* curr = (Node*)(voidData);
+    LinkedList* linkedList = (LinkedList* )voidData;
+    Node* curr = linkedList->head;
 
     while (curr){
         Record* data = curr->data;

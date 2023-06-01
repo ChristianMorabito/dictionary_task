@@ -16,19 +16,13 @@ void freeDynamicList(ListHead** head, void(freeData)(void* data)){
     free(*head); // free the list head.
 }
 
-
-void initialize(ListHead* head){
-    void* list = malloc(sizeof(void*));
-    head->data = list;
-    head->size = 1;
-    head->filled = 0;
-}
-
 ListHead* createHead(){
-    ListHead* list = malloc(sizeof(ListHead));
-    list->size = 0;
-    list->data = 0;
-    return list;
+    ListHead* head = malloc(sizeof(ListHead));
+    void* list = malloc(sizeof(void*)*10);
+    head->data = list;
+    head->size = 10;
+    head->filled = 0;
+    return head;
 }
 
 void appendList(ListHead** head, void* data){
@@ -45,6 +39,4 @@ void appendList(ListHead** head, void* data){
     (*head)->data[filled] = data;
     (*head)->filled++;
 }
-
-
 
