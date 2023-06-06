@@ -46,6 +46,10 @@ bool outputText(void* data, FILE* fpWrite, void(outputStructure)(void*, FILE*, c
 
 void outputDynamicList(void* voidData, FILE* fpWrite, char* buffer);
 
+Record* findDiff(double preDiff, double postDiff, Record* preCurr, Record* postCurr);
+
+void traverseDynamicList(Record** curr, Record** preCurr, Record** postCurr, Record** result, double input);
+
 void outputLinkedList(void* data, FILE* fpWrite, char* buffer);
 
 

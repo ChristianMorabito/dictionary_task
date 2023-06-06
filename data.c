@@ -85,14 +85,15 @@ void fillRecordStruct(Record* structRec, int comma, char* tmpField, int right, i
             structRec->endLat = createDouble(tmpField);
             break;
         default:
-            printf("Error!!");
+            puts("Error when creating Record");
+            exit(-1);
     }
 }
 
 Record* importRec(char* stringRec){
     Record* structRec = malloc(sizeof(Record));
     if (structRec == NULL){
-        printf("Error: Out of memory. Exiting...\n");
+        puts("Memory Allocation Error. Exiting...");
         exit(-1);
     }
     int right, left=0;
@@ -148,23 +149,65 @@ void outputDynamicList(void* voidData, FILE* fpWrite, char* buffer){
     // CREATE DOUBLE
     double input = createDouble(buffer);
 
-    bool maxCheck = true;
 
-    Record** data = (Record**)(Record*)voidData;
+    Record* preCurr = NULL;
+    Record* postCurr = NULL;
+    Record* result = NULL;
 
-    while (*data){
-        if ((*data)->grade1in > input){
-            writeData(fpWrite, *data); // OUTPUT TEXT TO FILE
-            printf("%.2f --> %.2f\n", input, (*data)->grade1in); // STDOUT PRINT STATEMENT
-            maxCheck = false;
+    traverseDynamicList((Record**)voidData, &preCurr, &postCurr, &result, input);
+
+    char* stdOut = "";
+
+    if (!result){
+        if (!preCurr){
+            stdOut = ": OUT OF RANGE. Min. listed number is";
+            result = postCurr;
+        }
+        else if (!postCurr){
+            stdOut = ": OUT OF RANGE. Max. listed number is";
+            result = preCurr;
+        }
+        else {
+            result = findDiff(input - preCurr->grade1in, postCurr->grade1in - input, preCurr, postCurr);
+        }
+    }
+
+    printf("%.1f%s --> %.1f\n", input, stdOut, result->grade1in); // STDOUT PRINT STATEMENT
+    writeData(fpWrite, result);
+
+}
+
+void traverseDynamicList(Record** curr, Record** preCurr, Record** postCurr, Record** result, double input){
+
+    while (*curr){
+        if ((*curr)->grade1in < input){
+            *preCurr = *curr;
+        }
+        else if ((*curr)->grade1in == input){
+            *result = *curr;
             break;
         }
-        data++;
+        else {
+            *postCurr = *curr;
+            break;
+        }
+        curr++;
     }
-    if (maxCheck){
-        printf("NUMBER TOO HIGH. Max is: %.2f\n", (*(data-1))->grade1in); // STDOUT PRINT STATEMENT
-        fputs("-->\tNUMBER TOO HIGH\n", fpWrite); // OUTPUT TEXT TO FILE
+
+}
+
+Record* findDiff(double preDiff, double postDiff, Record* preCurr, Record* postCurr){
+    Record* result = NULL;
+
+    if (preDiff <= postDiff){
+        result = preCurr;
     }
+    else{
+        result = postCurr;
+    }
+    return result;
+
+
 }
 
 void outputLinkedList(void* voidData, FILE* fpWrite, char* buffer){
@@ -219,5 +262,3 @@ void writeData(FILE* fpWrite, Record* data){
     fprintf(fpWrite,"\tEndLat: %f\t||", data->endLat);
     fprintf(fpWrite,"\tEndLon: %f\n", data->endLon);
 }
-
-

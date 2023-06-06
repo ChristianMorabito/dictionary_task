@@ -7,11 +7,15 @@
 #define MAX_RECORD 512
 
 
-int main(int argv, char* argc[]){
+int main(int argc, char* argv[]){
     Record* data = NULL;
     ListHead* head = createHead();
+    if (!head || !head->data){
+        puts("Memory failed. Exiting...\n");
+        exit(-1);
+    }
 
-    FILE* fpRead = fopen("dataset_20.csv", "r"); // open file to be read
+    FILE* fpRead = fopen(argv[1], "r"); // open file to be read
     if (fpRead == NULL){
         printf("File could not be opened! Exiting...\n");
         exit(-1);
@@ -24,18 +28,25 @@ int main(int argv, char* argc[]){
 
     // while loop allows for the csv rows to be iterated through, until the end
     int i = 0; //
+    int status;
     while(fgets(buffer, MAX_RECORD, fpRead) != NULL){
         data = importRec(buffer);
-        appendList(head, data);
+        status = appendList(head, data);
+        if (status == -1){
+            puts("Memory failed. Exiting...\n");
+            exit(-1);
+        }
         i++;
     }
-    appendList(head, NULL); // add NULL 'end reference' to mark end of list.
+    if (status == 0) {
+        appendList(head, NULL); // add NULL 'end reference' to mark end of list.
+    }
     fclose(fpRead); // close file
 
 //  SORT
-    divide((Record** )(head->data), 0, i-1);
+    quicksort((Record **)(head->data), 0, i - 1);
 
-    FILE* fpWrite = fopen("output.txt", "w"); // create txt file to be written
+    FILE* fpWrite = fopen(argv[2], "w"); // create txt file to be written
     if (fpWrite == NULL){
         printf("File could not be written! Exiting...\n");
         exit(-1);

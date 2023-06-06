@@ -18,25 +18,38 @@ void freeDynamicList(ListHead** head, void(freeData)(void* data)){
 
 ListHead* createHead(){
     ListHead* head = malloc(sizeof(ListHead));
+    if (!head){ // if malloc fails head will return NULL.
+        return NULL;
+    }
     void* list = malloc(sizeof(void*)*10);
+    if (!list){
+        return NULL; // if malloc fails head->data will return NULL.
+    }
     head->data = list;
     head->size = 10;
     head->filled = 0;
     return head;
 }
 
-void appendList(ListHead* head, void* data){
+int appendList(ListHead* head, void* data){
     size_t filled = head->filled;
     size_t size = head->size;
-    if (size - (filled + 1) < 1){
-        head->data = realloc(head->data, sizeof(void*) * (size * 2));
-        if (head->data == NULL){
-            printf("REALLOC FAILED");
-            exit(-1);
+    if (size - (filled + 1) < 2){
+
+        void* temp = realloc(head->data, sizeof(void*) * (size * 2));
+
+        // If realloc fails, then return -1 & add NULL to end of list.
+        if (!temp){
+            head->data[filled] = NULL;
+            return -1;
         }
+        head->data = temp; // else, if realloc successful, then head->data is "appended".
         head->size *= 2;
     }
+
     head->data[filled] = data;
     head->filled++;
+
+    return 0;
 }
 

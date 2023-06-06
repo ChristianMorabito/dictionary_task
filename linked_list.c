@@ -15,12 +15,12 @@ void freeLinkedList(LinkedList* linkedList, void(freeData)(void* data)){
     free(linkedList);
 }
 
-void insert(LinkedList* linkedList, void* data){
+int insert(LinkedList* linkedList, void* data){
 
     Node* newNode = malloc(sizeof(Node)); // create NODE for linked list
+    // if malloc fails...
     if (newNode == NULL){
-        printf("Error: Out of memory. Exiting...\n");
-        exit(-1);
+        return -1; // then return -1
     }
     newNode->data = data; // attach RECORD to NODE
     newNode->next = NULL; // nullify .next pointer
@@ -29,22 +29,21 @@ void insert(LinkedList* linkedList, void* data){
     if (!linkedList->head){
         linkedList->head = newNode;
         linkedList->tail = newNode;
-        return;
     }
 
-    else {
+    else{
         linkedList->tail->next = newNode;
         linkedList->tail = newNode;
-        return;
     }
+    return 0;
+
 }
 
 LinkedList* create(){
 
     LinkedList* linkedList = malloc(sizeof(LinkedList));
     if (linkedList == NULL){
-        printf("MALLOC FAILED. Exiting...\n");
-        exit(-1);
+        return NULL; // if malloc fails
     }
     linkedList->head = NULL;
     linkedList->tail = NULL;
